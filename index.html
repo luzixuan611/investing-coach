@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="面向投资新手的 ETF 学习与可解释股票研究工具">
+    <title>投资教练｜ETF 与股票入门</title>
+    <style>
+      :root { --ink:#182228; --muted:#617079; --surface:#fff; --page:#f5f7f5; --line:#dfe5e1; --green:#126b57; --green-soft:#e8f4ee; --amber:#a95812; --amber-soft:#fff1e2; --red:#a63535; --radius:16px; }
+      * { box-sizing:border-box; }
+      body { margin:0; color:var(--ink); background:var(--page); font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+      button,input { font:inherit; }
+      button { cursor:pointer; }
+      .wrap { width:min(960px,calc(100% - 32px)); margin:auto; }
+      header { padding:20px 0; background:rgba(245,247,245,.92); border-bottom:1px solid var(--line); }
+      .nav { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+      .brand { display:flex; gap:10px; align-items:center; font-weight:700; }
+      .mark { display:grid; place-items:center; width:32px; height:32px; border-radius:9px; color:white; background:var(--green); }
+      .badge { display:inline-block; padding:3px 9px; border-radius:99px; color:var(--green); background:var(--green-soft); font-size:13px; font-weight:600; }
+      main { padding:46px 0 70px; }
+      .hero { display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:end; }
+      h1 { margin:0 0 12px; max-width:650px; font-size:clamp(32px,6vw,54px); line-height:1.08; letter-spacing:-.04em; }
+      h2 { margin:0; font-size:22px; letter-spacing:-.02em; }
+      h3 { margin:0 0 8px; font-size:17px; }
+      p { margin:0; }
+      .lede { max-width:620px; color:var(--muted); font-size:18px; }
+      .steps { display:flex; justify-content:flex-end; gap:10px; color:var(--muted); font-size:13px; }
+      .steps span { display:grid; place-items:center; width:30px; height:30px; border:1px solid var(--line); border-radius:50%; background:var(--surface); }
+      .steps .active { border-color:var(--green); color:white; background:var(--green); }
+      .card { margin-top:26px; padding:24px; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); box-shadow:0 6px 20px rgba(26,44,35,.035); }
+      .card-top { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+      .muted { color:var(--muted); }
+      .choice-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+      .choice { border:1px solid var(--line); border-radius:10px; padding:10px 14px; color:var(--ink); background:var(--surface); }
+      .choice[aria-pressed="true"] { border-color:var(--green); color:white; background:var(--green); }
+      .range-head { display:flex; justify-content:space-between; margin-top:24px; }
+      input[type="range"] { width:100%; accent-color:var(--green); }
+      .bar { display:flex; height:18px; overflow:hidden; border-radius:7px; background:#e8ece9; }
+      .bar > div { transition:width .25s ease; }
+      .etf { width:80%; background:var(--green); }
+      .stock { width:20%; background:#e0a55b; }
+      .bar-labels { display:flex; justify-content:space-between; margin:7px 0 9px; font-size:14px; }
+      .notice { margin-top:14px; color:var(--muted); font-size:14px; }
+      .research-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:22px; }
+      ul { margin:0; padding-left:21px; }
+      li { margin:7px 0; }
+      .risk { padding-left:18px; border-left:3px solid var(--amber); }
+      .research-note { margin-top:18px; padding:13px 15px; border-radius:10px; color:#73420d; background:var(--amber-soft); font-size:14px; }
+      .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+      .button { border:1px solid var(--green); border-radius:10px; padding:10px 14px; color:var(--green); background:white; font-weight:600; }
+      .button.primary { color:white; background:var(--green); }
+      #status { min-height:24px; margin-top:14px; color:var(--green); font-size:14px; }
+      .learn { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:26px; }
+      .lesson { padding:16px; border-top:3px solid var(--green); background:transparent; }
+      .lesson p { color:var(--muted); font-size:14px; }
+      footer { padding:26px 0 40px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
+      @media (max-width:680px) { .hero,.research-grid { grid-template-columns:1fr; } .steps { justify-content:flex-start; } .card { padding:19px; } .learn { grid-template-columns:1fr; gap:4px; } }
+    </style>
+  </head>
+  <body>
+    <header><div class="wrap nav"><div class="brand"><span class="mark">↗</span>投资教练</div><span class="badge">演示版 · 非投资建议</span></div></header>
+    <main class="wrap">
+      <section class="hero">
+        <div><p class="badge">学习 · 研究 · 模拟</p><h1>先懂风险，<br>再做投资决定。</h1><p class="lede">为 ETF 与股票新手准备的投资学习工具。用清晰的证据、反方观点和模拟组合，帮助你建立自己的判断。</p></div>
+        <div class="steps" aria-label="使用步骤"><span class="active">1</span><span>2</span><span>3</span><span>4</span></div>
+      </section>
+
+      <section class="card" aria-labelledby="goal-title">
+        <div class="card-top"><div><h2 id="goal-title">1. 你现在最需要什么？</h2><p class="muted">选择目标后，研究内容会改变重点。</p></div><span class="badge" id="goal-badge">长期增长</span></div>
+        <div class="choice-row" role="group" aria-label="投资重点"><button class="choice" data-goal="稳健起步" aria-pressed="false">稳健起步</button><button class="choice" data-goal="长期增长" aria-pressed="true">长期增长</button><button class="choice" data-goal="学习个股" aria-pressed="false">学习个股</button></div>
+      </section>
+
+      <section class="card" aria-labelledby="allocation-title">
+        <div class="card-top"><div><h2 id="allocation-title">2. 先搭建组合，再研究个股</h2><p class="muted">新手可以把 ETF 作为核心，个股作为小比例的学习仓位。</p></div></div>
+        <div class="range-head"><label for="stock-share">单只股票的模拟比例</label><strong id="stock-value">20%</strong></div>
+        <input id="stock-share" type="range" min="0" max="50" value="20" step="5">
+        <div class="bar-labels"><span>ETF 核心 <strong id="etf-value">80%</strong></span><span>个股探索 <strong id="share-label">20%</strong></span></div>
+        <div class="bar" role="img" id="allocation-bar" aria-label="当前模拟组合中 ETF 占 80%，单只股票占 20%"><div class="etf" id="etf-part"></div><div class="stock" id="stock-part"></div></div>
+        <p class="notice" id="allocation-note">这是用于学习的模拟配置，不代表适合每个人。</p>
+      </section>
+
+      <section class="card" aria-labelledby="research-title">
+        <div class="card-top"><div><h2 id="research-title">3. 可解释的股票研究卡</h2><p class="muted">示例公司用于演示产品结构，不是股票推荐。</p></div><span class="badge" id="fit-badge">值得进一步研究</span></div>
+        <div style="margin-top:20px"><h3 id="company-name">CloudWorks（示例公司）</h3><p class="muted" id="company-label">成长型软件 · 仅作研究训练</p></div>
+        <div class="research-grid">
+          <div><h3>为什么进入候选</h3><ul><li>收入来源具备重复性，便于研究长期经营质量。</li><li>所处赛道存在长期需求，但还要核对估值。</li><li>适合作为“如何读年报与现金流”的学习案例。</li></ul></div>
+          <div class="risk"><h3>为什么可能不适合</h3><ul><li>增长预期落空时，股价可能大幅回撤。</li><li>竞争、客户集中度与估值都会改变结论。</li><li>单只股票不能替代分散化 ETF。</li></ul></div>
+        </div>
+        <div class="research-note">真实版本中的每个理由都应附数据来源、截至日期、同业对比和反证条件。系统不应以“稳赚”“立即买入”等方式推动交易。</div>
+        <div class="actions"><button class="button" id="counter-case">查看反方问题</button><button class="button primary" id="simulate">加入模拟组合</button></div>
+        <p id="status" aria-live="polite"></p>
+      </section>
+
+      <section class="learn" aria-label="学习路径"><article class="lesson"><h3>01 · ETF 基础</h3><p>理解指数、分散化、费用与长期持有。</p></article><article class="lesson"><h3>02 · 看懂风险</h3><p>区分波动、亏损、流动性与集中风险。</p></article><article class="lesson"><h3>03 · 研究公司</h3><p>从商业模式、财务、估值和反方证据开始。</p></article></section>
+    </main>
+    <footer><div class="wrap">教育与研究工具原型，不构成投资、税务或法律建议。个性化证券建议与交易功能上线前应完成所在司法辖区的合规审查。</div></footer>
+    <script>
+      const slider = document.getElementById('stock-share');
+      const stockValue = document.getElementById('stock-value');
+      const shareLabel = document.getElementById('share-label');
+      const etfValue = document.getElementById('etf-value');
+      const etfPart = document.getElementById('etf-part');
+      const stockPart = document.getElementById('stock-part');
+      const allocationBar = document.getElementById('allocation-bar');
+      const allocationNote = document.getElementById('allocation-note');
+      const status = document.getElementById('status');
+      function updateAllocation() { const stock = Number(slider.value), etf = 100 - stock; stockValue.textContent = `${stock}%`; shareLabel.textContent = `${stock}%`; etfValue.textContent = `${etf}%`; etfPart.style.width = `${etf}%`; stockPart.style.width = `${stock}%`; allocationBar.setAttribute('aria-label', `当前模拟组合中 ETF 占 ${etf}%，单只股票占 ${stock}%`); allocationNote.textContent = stock > 30 ? '个股比例较高：确认你理解单一公司波动，并先完成风险学习。' : '这是用于学习的模拟配置，不代表适合每个人。'; }
+      slider.addEventListener('input', updateAllocation);
+      document.querySelectorAll('.choice').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.choice').forEach(item => item.setAttribute('aria-pressed', String(item === button))); const goal = button.dataset.goal; document.getElementById('goal-badge').textContent = goal; document.getElementById('company-label').textContent = goal === '稳健起步' ? 'ETF 优先 · 个股仅用于观察学习' : goal === '学习个股' ? '研究训练 · 先理解业务，再做模拟' : '成长型软件 · 仅作研究训练'; document.getElementById('fit-badge').textContent = goal === '稳健起步' ? '先学 ETF 更合适' : goal === '学习个股' ? '适合研究练习' : '值得进一步研究'; status.textContent = `已按“${goal}”调整研究角度。`; }));
+      document.getElementById('counter-case').addEventListener('click', () => status.textContent = '反方问题：如果增长放缓、竞争加剧或估值过高，为什么还要持有？真实研究应使用数据和来源回答它。');
+      document.getElementById('simulate').addEventListener('click', () => status.textContent = `已加入模拟组合：ETF ${100 - Number(slider.value)}%，个股学习仓位 ${slider.value}%。真实买入前请核对产品、费用与风险。`);
+      updateAllocation();
+    </script>
+  </body>
+</html>
