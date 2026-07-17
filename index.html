@@ -50,7 +50,7 @@
       .button { border:1px solid var(--green); border-radius:10px; padding:10px 14px; color:var(--green); background:white; font-weight:600; }
       .button.primary { color:white; background:var(--green); }
       #status { min-height:24px; margin-top:14px; color:var(--green); font-size:14px; }
-      .path-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:22px; }
+      .path-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:22px; }
       .path { min-height:145px; border:1px solid var(--line); border-radius:12px; padding:17px; color:var(--ink); text-align:left; background:var(--surface); }
       .path:hover, .path[aria-pressed="true"] { border-color:var(--green); background:var(--green-soft); }
       .path small { display:block; margin-top:8px; color:var(--muted); }
@@ -81,6 +81,7 @@
           <button class="path" data-path="beginner" aria-pressed="false"><strong>我是完全新手</strong><small>我连 ETF 和股票有什么区别都不太清楚。</small></button>
           <button class="path" data-path="plan" aria-pressed="false"><strong>我想每月定投</strong><small>我有一笔可长期投入的钱，但不知道怎么开始。</small></button>
           <button class="path" data-path="stock" aria-pressed="false"><strong>我想研究一只股票</strong><small>我看到一家公司，想知道应该怎么看它。</small></button>
+          <button class="path" data-path="practice" aria-pressed="false"><strong>我想短期练习</strong><small>先用模拟仓体验涨跌，不用真钱追求短期收益。</small></button>
         </div>
         <div class="assistant-result" id="assistant-result" aria-live="polite">
           <span class="badge" id="result-tag">你的下一步</span>
@@ -120,7 +121,8 @@
       const paths = {
         beginner: { title: '先不急着买，花 15 分钟打好基础。', intro: '你的目标不是立刻选出“最好”的 ETF，而是先知道自己在买什么、风险在哪里。', steps: ['学习 ETF、股票和定投分别是什么。', '确认至少有一笔应急备用金，投资的钱短期不用。', '再用模拟组合体验市场上涨和下跌。'] },
         plan: { title: '先确定“多久不用这笔钱”，再谈每月投多少。', intro: '定投的重点是可持续，不是预测明天涨跌。', steps: ['写下每月稳定可投入的金额。', '确定投资期限：至少用 5 年以上的视角思考。', '先以分散化 ETF 为核心，随后再了解个股。'] },
-        stock: { title: '先研究公司，不要从“现在能不能买”开始。', intro: '一张研究卡应同时提供支持理由和反对理由。', steps: ['说清楚这家公司靠什么赚钱。', '核对收入、现金流、负债和行业竞争。', '写下一个会推翻你观点的反方条件，再决定是否只放进模拟组合。'] }
+        stock: { title: '先研究公司，不要从“现在能不能买”开始。', intro: '一张研究卡应同时提供支持理由和反对理由。', steps: ['说清楚这家公司靠什么赚钱。', '核对收入、现金流、负债和行业竞争。', '写下一个会推翻你观点的反方条件，再决定是否只放进模拟组合。'] },
+        practice: { title: '用模拟仓做一次 14 天观察练习。', intro: '短期市场没有保证的“正反馈”。这里的成功是完成研究和复盘，而不是赚到多少钱。', steps: ['从成交活跃、信息公开充分的宽基 ETF 或大型公司中任选一个观察对象；不提供买入推荐。', '记录你认为会涨或跌的理由、计划观察多久，以及什么信息会让你改变观点。', '14 天后复盘：价格变化、原先理由是否成立、你有没有被情绪带着走。'] }
       };
       document.querySelectorAll('.path').forEach(button => button.addEventListener('click', () => {
         const path = paths[button.dataset.path];
