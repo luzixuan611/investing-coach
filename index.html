@@ -69,6 +69,9 @@
       #future-candles.show { opacity:1; }
       .chart-label { fill:var(--muted); font-size:12px; }
       .prediction-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+      .level-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+      .level-row .button[aria-pressed="true"] { color:white; background:var(--green); }
+      .level-context { margin:14px 0 0; padding-left:14px; border-left:3px solid var(--green); color:var(--muted); }
       .learn { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:26px; }
       .lesson { padding:16px; border-top:3px solid var(--green); background:transparent; }
       .lesson p { color:var(--muted); font-size:14px; }
@@ -125,6 +128,8 @@
 
       <section class="card" aria-labelledby="chart-title">
         <div class="card-top"><div><h2 id="chart-title">K 线判断练习</h2><p class="muted">模拟案例，不是实时行情，也不是买卖信号。</p></div><span class="badge">练习：趋势与不确定性</span></div>
+        <div class="level-row" role="group" aria-label="选择练习关卡"><button class="button level" data-level="1" aria-pressed="true">第 1 关：只看 K 线</button><button class="button level" data-level="2" aria-pressed="false">第 2 关：加入成交量</button><button class="button level" data-level="3" aria-pressed="false">第 3 关：加入大盘背景</button></div>
+        <p class="level-context" id="level-context">第 1 关：只看价格走势。重点不是猜对，而是说出你看到的是上升、盘整，还是下跌。</p>
         <div class="chart-frame">
           <svg viewBox="0 0 640 240" role="img" aria-labelledby="chart-svg-title chart-svg-desc">
             <title id="chart-svg-title">模拟的 K 线判断练习</title><desc id="chart-svg-desc">左侧显示已知的八根 K 线，右侧三根 K 线会在用户提交判断后显示。</desc>
@@ -172,7 +177,16 @@
         document.getElementById('future-candles').classList.add('show');
         document.querySelectorAll('.prediction').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
         const prediction = button.dataset.prediction;
-        document.getElementById('prediction-result').textContent = `你选择了“${prediction}”。本案例的后续走势先上涨、再回落；它只说明 K 线能帮助描述趋势和波动，不能保证预测正确。复盘时还应看成交量、公司/指数背景和你的风险计划。`;
+        const level = document.querySelector('.level[aria-pressed="true"]').dataset.level;
+        const lessons = { '1': '本案例的后续走势先上涨、再回落；它说明 K 线能描述趋势和波动，却不能保证预测正确。', '2': '即使成交量放大也不等于一定上涨；复盘时要看放量发生在上涨、下跌还是震荡阶段。', '3': '大盘背景可以帮助理解个股或行业的同步波动，但它不会消除公司本身的风险。' };
+        document.getElementById('prediction-result').textContent = `你选择了“${prediction}”。${lessons[level]} 这是一项模拟练习，不是买卖信号。`;
+      }));
+      const levelContexts = { '1': '第 1 关：只看价格走势。重点不是猜对，而是说出你看到的是上升、盘整，还是下跌。', '2': '第 2 关：加入成交量线索。问自己：价格上涨时，参与者是在增加还是减少？', '3': '第 3 关：加入大盘背景。问自己：这是个别标的的变化，还是整个市场都在波动？' };
+      document.querySelectorAll('.level').forEach(button => button.addEventListener('click', () => {
+        document.querySelectorAll('.level').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        document.getElementById('level-context').textContent = levelContexts[button.dataset.level];
+        document.getElementById('future-candles').classList.remove('show');
+        document.getElementById('prediction-result').textContent = '';
       }));
       const slider = document.getElementById('stock-share');
       const stockValue = document.getElementById('stock-value');
