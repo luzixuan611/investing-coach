@@ -50,24 +50,46 @@
       .button { border:1px solid var(--green); border-radius:10px; padding:10px 14px; color:var(--green); background:white; font-weight:600; }
       .button.primary { color:white; background:var(--green); }
       #status { min-height:24px; margin-top:14px; color:var(--green); font-size:14px; }
+      .path-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:22px; }
+      .path { min-height:145px; border:1px solid var(--line); border-radius:12px; padding:17px; color:var(--ink); text-align:left; background:var(--surface); }
+      .path:hover, .path[aria-pressed="true"] { border-color:var(--green); background:var(--green-soft); }
+      .path small { display:block; margin-top:8px; color:var(--muted); }
+      .assistant-result { display:none; margin-top:22px; padding:20px; border-radius:12px; background:var(--green-soft); }
+      .assistant-result.show { display:block; }
+      .assistant-result ol { margin:10px 0 0; padding-left:21px; }
+      .assistant-result li { margin:7px 0; }
+      .ask-row { display:flex; gap:10px; margin-top:18px; }
+      .ask-row input { min-width:0; flex:1; border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); background:white; }
       .learn { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:26px; }
       .lesson { padding:16px; border-top:3px solid var(--green); background:transparent; }
       .lesson p { color:var(--muted); font-size:14px; }
       footer { padding:26px 0 40px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
-      @media (max-width:680px) { .hero,.research-grid { grid-template-columns:1fr; } .steps { justify-content:flex-start; } .card { padding:19px; } .learn { grid-template-columns:1fr; gap:4px; } }
+      @media (max-width:680px) { .hero,.research-grid,.path-grid { grid-template-columns:1fr; } .steps { justify-content:flex-start; } .card { padding:19px; } .learn { grid-template-columns:1fr; gap:4px; } .ask-row { flex-direction:column; } }
     </style>
   </head>
   <body>
     <header><div class="wrap nav"><div class="brand"><span class="mark">↗</span>投资教练</div><span class="badge">演示版 · 非投资建议</span></div></header>
     <main class="wrap">
       <section class="hero">
-        <div><p class="badge">学习 · 研究 · 模拟</p><h1>先懂风险，<br>再做投资决定。</h1><p class="lede">为 ETF 与股票新手准备的投资学习工具。用清晰的证据、反方观点和模拟组合，帮助你建立自己的判断。</p></div>
-        <div class="steps" aria-label="使用步骤"><span class="active">1</span><span>2</span><span>3</span><span>4</span></div>
+        <div><p class="badge">给投资新手的第一步</p><h1>你想从哪里开始？</h1><p class="lede">不用先懂 ETF 或股票。选一个最接近你的问题，我会告诉你现在最该做什么。</p></div>
+        <div class="steps" aria-label="使用步骤"><span class="active">1</span><span>2</span><span>3</span></div>
       </section>
 
-      <section class="card" aria-labelledby="goal-title">
-        <div class="card-top"><div><h2 id="goal-title">1. 你现在最需要什么？</h2><p class="muted">选择目标后，研究内容会改变重点。</p></div><span class="badge" id="goal-badge">长期增长</span></div>
-        <div class="choice-row" role="group" aria-label="投资重点"><button class="choice" data-goal="稳健起步" aria-pressed="false">稳健起步</button><button class="choice" data-goal="长期增长" aria-pressed="true">长期增长</button><button class="choice" data-goal="学习个股" aria-pressed="false">学习个股</button></div>
+      <section class="card" aria-labelledby="start-title">
+        <div class="card-top"><div><h2 id="start-title">先选一个问题</h2><p class="muted">这是教育工具，不会催你立即买任何股票。</p></div></div>
+        <div class="path-grid" role="group" aria-label="选择你的问题">
+          <button class="path" data-path="beginner" aria-pressed="false"><strong>我是完全新手</strong><small>我连 ETF 和股票有什么区别都不太清楚。</small></button>
+          <button class="path" data-path="plan" aria-pressed="false"><strong>我想每月定投</strong><small>我有一笔可长期投入的钱，但不知道怎么开始。</small></button>
+          <button class="path" data-path="stock" aria-pressed="false"><strong>我想研究一只股票</strong><small>我看到一家公司，想知道应该怎么看它。</small></button>
+        </div>
+        <div class="assistant-result" id="assistant-result" aria-live="polite">
+          <span class="badge" id="result-tag">你的下一步</span>
+          <h3 id="result-title" style="margin-top:12px"></h3>
+          <p id="result-intro"></p>
+          <ol id="result-steps"></ol>
+          <div class="ask-row"><input id="user-question" aria-label="描述你的情况" placeholder="例如：我每月能存 200 欧元，完全没买过 ETF"><button class="button primary" id="ask-button">生成下一步</button></div>
+          <p id="question-answer" class="notice" aria-live="polite"></p>
+        </div>
       </section>
 
       <section class="card" aria-labelledby="allocation-title">
@@ -95,6 +117,23 @@
     </main>
     <footer><div class="wrap">教育与研究工具原型，不构成投资、税务或法律建议。个性化证券建议与交易功能上线前应完成所在司法辖区的合规审查。</div></footer>
     <script>
+      const paths = {
+        beginner: { title: '先不急着买，花 15 分钟打好基础。', intro: '你的目标不是立刻选出“最好”的 ETF，而是先知道自己在买什么、风险在哪里。', steps: ['学习 ETF、股票和定投分别是什么。', '确认至少有一笔应急备用金，投资的钱短期不用。', '再用模拟组合体验市场上涨和下跌。'] },
+        plan: { title: '先确定“多久不用这笔钱”，再谈每月投多少。', intro: '定投的重点是可持续，不是预测明天涨跌。', steps: ['写下每月稳定可投入的金额。', '确定投资期限：至少用 5 年以上的视角思考。', '先以分散化 ETF 为核心，随后再了解个股。'] },
+        stock: { title: '先研究公司，不要从“现在能不能买”开始。', intro: '一张研究卡应同时提供支持理由和反对理由。', steps: ['说清楚这家公司靠什么赚钱。', '核对收入、现金流、负债和行业竞争。', '写下一个会推翻你观点的反方条件，再决定是否只放进模拟组合。'] }
+      };
+      document.querySelectorAll('.path').forEach(button => button.addEventListener('click', () => {
+        const path = paths[button.dataset.path];
+        document.querySelectorAll('.path').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        document.getElementById('result-title').textContent = path.title;
+        document.getElementById('result-intro').textContent = path.intro;
+        document.getElementById('result-steps').innerHTML = path.steps.map(step => `<li>${step}</li>`).join('');
+        document.getElementById('assistant-result').classList.add('show');
+      }));
+      document.getElementById('ask-button').addEventListener('click', () => {
+        const question = document.getElementById('user-question').value.trim();
+        document.getElementById('question-answer').textContent = question ? '收到：下一版会根据你的金额、期限和风险承受能力生成学习路径；目前先从上面的三步开始，不会直接替你下单。' : '先写一句你的情况，例如“我每月能存 200 欧元，完全没买过 ETF”。';
+      });
       const slider = document.getElementById('stock-share');
       const stockValue = document.getElementById('stock-value');
       const shareLabel = document.getElementById('share-label');
@@ -106,7 +145,6 @@
       const status = document.getElementById('status');
       function updateAllocation() { const stock = Number(slider.value), etf = 100 - stock; stockValue.textContent = `${stock}%`; shareLabel.textContent = `${stock}%`; etfValue.textContent = `${etf}%`; etfPart.style.width = `${etf}%`; stockPart.style.width = `${stock}%`; allocationBar.setAttribute('aria-label', `当前模拟组合中 ETF 占 ${etf}%，单只股票占 ${stock}%`); allocationNote.textContent = stock > 30 ? '个股比例较高：确认你理解单一公司波动，并先完成风险学习。' : '这是用于学习的模拟配置，不代表适合每个人。'; }
       slider.addEventListener('input', updateAllocation);
-      document.querySelectorAll('.choice').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.choice').forEach(item => item.setAttribute('aria-pressed', String(item === button))); const goal = button.dataset.goal; document.getElementById('goal-badge').textContent = goal; document.getElementById('company-label').textContent = goal === '稳健起步' ? 'ETF 优先 · 个股仅用于观察学习' : goal === '学习个股' ? '研究训练 · 先理解业务，再做模拟' : '成长型软件 · 仅作研究训练'; document.getElementById('fit-badge').textContent = goal === '稳健起步' ? '先学 ETF 更合适' : goal === '学习个股' ? '适合研究练习' : '值得进一步研究'; status.textContent = `已按“${goal}”调整研究角度。`; }));
       document.getElementById('counter-case').addEventListener('click', () => status.textContent = '反方问题：如果增长放缓、竞争加剧或估值过高，为什么还要持有？真实研究应使用数据和来源回答它。');
       document.getElementById('simulate').addEventListener('click', () => status.textContent = `已加入模拟组合：ETF ${100 - Number(slider.value)}%，个股学习仓位 ${slider.value}%。真实买入前请核对产品、费用与风险。`);
       updateAllocation();
