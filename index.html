@@ -60,6 +60,15 @@
       .assistant-result li { margin:7px 0; }
       .ask-row { display:flex; gap:10px; margin-top:18px; }
       .ask-row input { min-width:0; flex:1; border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); background:white; }
+      .chart-frame { margin-top:20px; }
+      .chart-frame svg { display:block; width:100%; height:auto; }
+      .grid-line { stroke:var(--line); stroke-width:1; }
+      .candle-up { stroke:var(--green); fill:var(--green-soft); }
+      .candle-down { stroke:var(--red); fill:#fbeaea; }
+      #future-candles { opacity:0; transition:opacity .25s ease; }
+      #future-candles.show { opacity:1; }
+      .chart-label { fill:var(--muted); font-size:12px; }
+      .prediction-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
       .learn { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:26px; }
       .lesson { padding:16px; border-top:3px solid var(--green); background:transparent; }
       .lesson p { color:var(--muted); font-size:14px; }
@@ -114,6 +123,29 @@
         <p id="status" aria-live="polite"></p>
       </section>
 
+      <section class="card" aria-labelledby="chart-title">
+        <div class="card-top"><div><h2 id="chart-title">K 线判断练习</h2><p class="muted">模拟案例，不是实时行情，也不是买卖信号。</p></div><span class="badge">练习：趋势与不确定性</span></div>
+        <div class="chart-frame">
+          <svg viewBox="0 0 640 240" role="img" aria-labelledby="chart-svg-title chart-svg-desc">
+            <title id="chart-svg-title">模拟的 K 线判断练习</title><desc id="chart-svg-desc">左侧显示已知的八根 K 线，右侧三根 K 线会在用户提交判断后显示。</desc>
+            <line class="grid-line" x1="40" y1="35" x2="610" y2="35"/><line class="grid-line" x1="40" y1="95" x2="610" y2="95"/><line class="grid-line" x1="40" y1="155" x2="610" y2="155"/><line class="grid-line" x1="40" y1="210" x2="610" y2="210"/>
+            <text class="chart-label" x="40" y="228">已知走势</text><text class="chart-label" x="455" y="228">后续走势</text>
+            <g class="candle-up"><line x1="75" y1="155" x2="75" y2="90"/><rect x="66" y="108" width="18" height="30"/></g>
+            <g class="candle-down"><line x1="120" y1="150" x2="120" y2="82"/><rect x="111" y="96" width="18" height="33"/></g>
+            <g class="candle-up"><line x1="165" y1="135" x2="165" y2="70"/><rect x="156" y="86" width="18" height="34"/></g>
+            <g class="candle-up"><line x1="210" y1="120" x2="210" y2="55"/><rect x="201" y="72" width="18" height="30"/></g>
+            <g class="candle-down"><line x1="255" y1="128" x2="255" y2="64"/><rect x="246" y="76" width="18" height="31"/></g>
+            <g class="candle-up"><line x1="300" y1="110" x2="300" y2="48"/><rect x="291" y="62" width="18" height="31"/></g>
+            <g class="candle-up"><line x1="345" y1="96" x2="345" y2="35"/><rect x="336" y="49" width="18" height="30"/></g>
+            <g class="candle-down"><line x1="390" y1="110" x2="390" y2="42"/><rect x="381" y="56" width="18" height="33"/></g>
+            <g id="future-candles"><g class="candle-up"><line x1="465" y1="88" x2="465" y2="24"/><rect x="456" y="38" width="18" height="31"/></g><g class="candle-up"><line x1="510" y1="72" x2="510" y2="16"/><rect x="501" y="28" width="18" height="28"/></g><g class="candle-down"><line x1="555" y1="79" x2="555" y2="30"/><rect x="546" y="41" width="18" height="21"/></g></g>
+          </svg>
+        </div>
+        <p>只看已知走势：你觉得接下来更可能怎样？先选判断，再看结果。</p>
+        <div class="prediction-row" role="group" aria-label="K 线判断"><button class="button prediction" data-prediction="上涨">更可能上涨</button><button class="button prediction" data-prediction="下跌">更可能下跌</button><button class="button prediction" data-prediction="不确定">不确定，需要更多信息</button></div>
+        <p id="prediction-result" class="notice" aria-live="polite"></p>
+      </section>
+
       <section class="learn" aria-label="学习路径"><article class="lesson"><h3>01 · ETF 基础</h3><p>理解指数、分散化、费用与长期持有。</p></article><article class="lesson"><h3>02 · 看懂风险</h3><p>区分波动、亏损、流动性与集中风险。</p></article><article class="lesson"><h3>03 · 研究公司</h3><p>从商业模式、财务、估值和反方证据开始。</p></article></section>
     </main>
     <footer><div class="wrap">教育与研究工具原型，不构成投资、税务或法律建议。个性化证券建议与交易功能上线前应完成所在司法辖区的合规审查。</div></footer>
@@ -136,6 +168,12 @@
         const question = document.getElementById('user-question').value.trim();
         document.getElementById('question-answer').textContent = question ? '收到：下一版会根据你的金额、期限和风险承受能力生成学习路径；目前先从上面的三步开始，不会直接替你下单。' : '先写一句你的情况，例如“我每月能存 200 欧元，完全没买过 ETF”。';
       });
+      document.querySelectorAll('.prediction').forEach(button => button.addEventListener('click', () => {
+        document.getElementById('future-candles').classList.add('show');
+        document.querySelectorAll('.prediction').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        const prediction = button.dataset.prediction;
+        document.getElementById('prediction-result').textContent = `你选择了“${prediction}”。本案例的后续走势先上涨、再回落；它只说明 K 线能帮助描述趋势和波动，不能保证预测正确。复盘时还应看成交量、公司/指数背景和你的风险计划。`;
+      }));
       const slider = document.getElementById('stock-share');
       const stockValue = document.getElementById('stock-value');
       const shareLabel = document.getElementById('share-label');
