@@ -68,6 +68,7 @@
       #future-candles { opacity:0; transition:opacity .25s ease; }
       #future-candles.show { opacity:1; }
       .chart-label { fill:var(--muted); font-size:12px; }
+      .volume-bar { fill:var(--muted); opacity:.35; }
       .prediction-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
       .level-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
       .level-row .button[aria-pressed="true"] { color:white; background:var(--green); }
@@ -127,26 +128,13 @@
       </section>
 
       <section class="card" aria-labelledby="chart-title">
-        <div class="card-top"><div><h2 id="chart-title">K 线判断练习</h2><p class="muted">模拟案例，不是实时行情，也不是买卖信号。</p></div><span class="badge">练习：趋势与不确定性</span></div>
+        <div class="card-top"><div><h2 id="chart-title">K 线判断练习</h2><p class="muted">真实历史案例：IBM（道琼斯成分股），2024 年 4 月。不是实时行情，也不是买卖信号。</p></div><span class="badge">练习：趋势与不确定性</span></div>
         <div class="level-row" role="group" aria-label="选择练习关卡"><button class="button level" data-level="1" aria-pressed="true">第 1 关：只看 K 线</button><button class="button level" data-level="2" aria-pressed="false">第 2 关：加入成交量</button><button class="button level" data-level="3" aria-pressed="false">第 3 关：加入大盘背景</button></div>
         <p class="level-context" id="level-context">第 1 关：只看价格走势。重点不是猜对，而是说出你看到的是上升、盘整，还是下跌。</p>
         <div class="chart-frame">
-          <svg viewBox="0 0 640 240" role="img" aria-labelledby="chart-svg-title chart-svg-desc">
-            <title id="chart-svg-title">模拟的 K 线判断练习</title><desc id="chart-svg-desc">左侧显示已知的八根 K 线，右侧三根 K 线会在用户提交判断后显示。</desc>
-            <line class="grid-line" x1="40" y1="35" x2="610" y2="35"/><line class="grid-line" x1="40" y1="95" x2="610" y2="95"/><line class="grid-line" x1="40" y1="155" x2="610" y2="155"/><line class="grid-line" x1="40" y1="210" x2="610" y2="210"/>
-            <text class="chart-label" x="40" y="228">已知走势</text><text class="chart-label" x="455" y="228">后续走势</text>
-            <g class="candle-up"><line x1="75" y1="155" x2="75" y2="90"/><rect x="66" y="108" width="18" height="30"/></g>
-            <g class="candle-down"><line x1="120" y1="150" x2="120" y2="82"/><rect x="111" y="96" width="18" height="33"/></g>
-            <g class="candle-up"><line x1="165" y1="135" x2="165" y2="70"/><rect x="156" y="86" width="18" height="34"/></g>
-            <g class="candle-up"><line x1="210" y1="120" x2="210" y2="55"/><rect x="201" y="72" width="18" height="30"/></g>
-            <g class="candle-down"><line x1="255" y1="128" x2="255" y2="64"/><rect x="246" y="76" width="18" height="31"/></g>
-            <g class="candle-up"><line x1="300" y1="110" x2="300" y2="48"/><rect x="291" y="62" width="18" height="31"/></g>
-            <g class="candle-up"><line x1="345" y1="96" x2="345" y2="35"/><rect x="336" y="49" width="18" height="30"/></g>
-            <g class="candle-down"><line x1="390" y1="110" x2="390" y2="42"/><rect x="381" y="56" width="18" height="33"/></g>
-            <g id="future-candles"><g class="candle-up"><line x1="465" y1="88" x2="465" y2="24"/><rect x="456" y="38" width="18" height="31"/></g><g class="candle-up"><line x1="510" y1="72" x2="510" y2="16"/><rect x="501" y="28" width="18" height="28"/></g><g class="candle-down"><line x1="555" y1="79" x2="555" y2="30"/><rect x="546" y="41" width="18" height="21"/></g></g>
-          </svg>
+          <svg id="market-chart" viewBox="0 0 640 240" role="img" aria-labelledby="chart-svg-title chart-svg-desc"><title id="chart-svg-title">IBM 2024 年 4 月真实历史 K 线练习</title><desc id="chart-svg-desc">左侧显示 IBM 已知的七个交易日，右侧三个交易日会在用户提交判断后显示。</desc><g id="chart-grid"></g><g id="volume-layer"></g><g id="known-candles"></g><g id="future-candles"></g><g id="chart-labels"></g></svg>
         </div>
-        <p>只看已知走势：你觉得接下来更可能怎样？先选判断，再看结果。</p>
+        <p>数据来源：Alpha Vantage 日线数据；先看 2024 年 4 月 1–9 日的真实走势，再判断 4 月 10–12 日。</p>
         <div class="prediction-row" role="group" aria-label="K 线判断"><button class="button prediction" data-prediction="上涨">更可能上涨</button><button class="button prediction" data-prediction="下跌">更可能下跌</button><button class="button prediction" data-prediction="不确定">不确定，需要更多信息</button></div>
         <p id="prediction-result" class="notice" aria-live="polite"></p>
       </section>
@@ -173,19 +161,58 @@
         const question = document.getElementById('user-question').value.trim();
         document.getElementById('question-answer').textContent = question ? '收到：下一版会根据你的金额、期限和风险承受能力生成学习路径；目前先从上面的三步开始，不会直接替你下单。' : '先写一句你的情况，例如“我每月能存 200 欧元，完全没买过 ETF”。';
       });
+      const ibmCase = [
+        { date:'4/01', open:190.00, high:190.46, low:188.52, close:189.83, volume:2362586 },
+        { date:'4/02', open:189.14, high:189.80, low:187.60, close:188.88, volume:2689711 },
+        { date:'4/03', open:188.60, high:191.35, low:188.49, close:190.90, volume:2818910 },
+        { date:'4/04', open:192.00, high:193.28, low:187.34, close:187.94, volume:2924438 },
+        { date:'4/05', open:188.59, high:190.32, low:188.02, close:189.14, volume:2012428 },
+        { date:'4/08', open:189.24, high:190.24, low:188.91, close:189.82, volume:2673611 },
+        { date:'4/09', open:190.54, high:191.25, low:186.66, close:189.31, volume:2790673 },
+        { date:'4/10', open:187.42, high:187.92, low:185.52, close:186.04, volume:3081915 },
+        { date:'4/11', open:186.04, high:186.80, low:184.58, close:185.90, volume:2861736 },
+        { date:'4/12', open:184.00, high:185.17, low:181.69, close:182.27, volume:3547378 }
+      ];
+      function renderHistoricalCase(showFuture = false) {
+        const chart = document.getElementById('market-chart');
+        const data = ibmCase;
+        const min = Math.min(...data.map(d => d.low)) - 1;
+        const max = Math.max(...data.map(d => d.high)) + 1;
+        const y = value => 18 + ((max - value) / (max - min)) * 145;
+        const x = index => 72 + index * 52;
+        const grid = [30, 80, 130, 180].map(value => `<line class="grid-line" x1="45" y1="${value}" x2="600" y2="${value}"/>`).join('');
+        chart.querySelector('#chart-grid').innerHTML = grid;
+        const level = document.querySelector('.level[aria-pressed="true"]').dataset.level;
+        const maxVolume = Math.max(...data.map(d => d.volume));
+        chart.querySelector('#volume-layer').innerHTML = level === '1' ? '' : data.map((d, i) => `<rect class="volume-bar" x="${x(i)-9}" y="${224 - (d.volume / maxVolume) * 24}" width="18" height="${(d.volume / maxVolume) * 24}"/>`).join('');
+        const candles = data.map((d, i) => {
+          const klass = d.close >= d.open ? 'candle-up' : 'candle-down';
+          const top = Math.min(y(d.open), y(d.close));
+          const height = Math.max(2, Math.abs(y(d.open) - y(d.close)));
+          return `<g class="${klass}"><line x1="${x(i)}" y1="${y(d.high)}" x2="${x(i)}" y2="${y(d.low)}"/><rect x="${x(i)-9}" y="${top}" width="18" height="${height}"/></g>`;
+        });
+        chart.querySelector('#known-candles').innerHTML = candles.slice(0, 7).join('');
+        const future = chart.querySelector('#future-candles');
+        future.innerHTML = candles.slice(7).join('');
+        future.classList.toggle('show', showFuture);
+        chart.querySelector('#chart-labels').innerHTML = `<text class="chart-label" x="45" y="238">已知：4/01–4/09</text><text class="chart-label" x="420" y="238">揭晓：4/10–4/12</text>${level === '1' ? '' : '<text class="chart-label" x="45" y="207">成交量</text>'}`;
+      }
+      renderHistoricalCase();
       document.querySelectorAll('.prediction').forEach(button => button.addEventListener('click', () => {
         document.getElementById('future-candles').classList.add('show');
         document.querySelectorAll('.prediction').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
         const prediction = button.dataset.prediction;
         const level = document.querySelector('.level[aria-pressed="true"]').dataset.level;
-        const lessons = { '1': '本案例的后续走势先上涨、再回落；它说明 K 线能描述趋势和波动，却不能保证预测正确。', '2': '即使成交量放大也不等于一定上涨；复盘时要看放量发生在上涨、下跌还是震荡阶段。', '3': '大盘背景可以帮助理解个股或行业的同步波动，但它不会消除公司本身的风险。' };
-        document.getElementById('prediction-result').textContent = `你选择了“${prediction}”。${lessons[level]} 这是一项模拟练习，不是买卖信号。`;
+        const correct = prediction === '下跌';
+        const verdict = correct ? '这次方向判断吻合。' : prediction === '不确定' ? '这次你没有猜中方向，但在信息不足时保持不确定是合理的风险意识。' : '这次方向判断没有吻合。';
+        const lessons = { '1': 'IBM 从 4 月 9 日收盘 189.31 美元，至 4 月 12 日收盘 182.27 美元，约下跌 3.7%。', '2': '下跌三天的成交量整体高于此前部分交易日，但单靠成交量仍不能保证判断正确。', '3': '即便有大盘背景，个股还会受到自身消息影响；背景是线索，不是答案。' };
+        document.getElementById('prediction-result').textContent = `你选择了“${prediction}”。${verdict}${lessons[level]} 这是历史复盘，不构成未来预测或买卖信号。`;
       }));
       const levelContexts = { '1': '第 1 关：只看价格走势。重点不是猜对，而是说出你看到的是上升、盘整，还是下跌。', '2': '第 2 关：加入成交量线索。问自己：价格上涨时，参与者是在增加还是减少？', '3': '第 3 关：加入大盘背景。问自己：这是个别标的的变化，还是整个市场都在波动？' };
       document.querySelectorAll('.level').forEach(button => button.addEventListener('click', () => {
         document.querySelectorAll('.level').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
         document.getElementById('level-context').textContent = levelContexts[button.dataset.level];
-        document.getElementById('future-candles').classList.remove('show');
+        renderHistoricalCase();
         document.getElementById('prediction-result').textContent = '';
       }));
       const slider = document.getElementById('stock-share');
